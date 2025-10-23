@@ -7,4 +7,8 @@ public class Card {
         }
         this.faceValue = faceValue;
     }
+
+    public int getValue() {
+        return faceValue;
+    }
 }

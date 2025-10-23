@@ -1,6 +1,6 @@
-import java.util.ArrayList;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Deck {
     private ArrayList<Card> cards;
@@ -14,11 +14,23 @@ public class Deck {
         this.cards = new ArrayList<>();
     }
 
+    public int getDeckID () {
+        return deckNum;
+    }
+    /*
     public synchronized void drawCard(Player player) {
         Card drawnCard = cards.remove(0);
         player.addCardToHand(drawnCard);
         Card discardedCard = cards.remove(0);
         cards.add(discardedCard);
+    }
+        May be better to handle this in Player class
+    */
+    public synchronized Card drawCard() {
+        return cards.remove(0);
+    }
+    public void addDiscardedCard (Card card) {
+        cards.add(card);
     }
 
     public synchronized void writeFinalContents() {
@@ -28,7 +40,7 @@ public class Deck {
                 writer.write(card.toString() + "\n");
             }
         } catch (IOException e) {
-            system.err.println("Error writing deck: " + e.getMessage());)
+            System.err.println("Error writing deck: " + e.getMessage());
         }
     }
 }

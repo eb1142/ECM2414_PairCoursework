@@ -1,0 +1,34 @@
+Feature 1 - Player class:
+Driver - 
+Coordinator - 
+
+Required Features:
+- must have access to draw deck and discard deck, this could be done by implementing an array in the game class.
+- must be able to draw card
+- add card to hand, could be from deck or pack
+- must be able to discard card
+- must be able to pick which card to discard
+- must have an attribute referencing a hand, an array of cards
+- must be able to detect when won, also using flags.
+- must have a preferred value, or an ID attribute
+- must have an output file to log actions too
+- must be able to take a turn, referencing both discard and draw and checking win
+
+Tests:
+- test ids after adding multiple players
+- test adding cards to deck
+- test removing a specific card
+- test drawing a card from a deck
+- test discarding a card to a deck
+- test picking a card from hand
+    - picking a card with duplicates
+    - picking a card where card to be picked is at beginning.
+    - in middle.
+    - check with 5 cards of the same.
+- test win method
+    - test with 3 of the same
+    - none of the same
+    - all of the same
+- test turn of game
+- test adding different pieces of text to output file
+

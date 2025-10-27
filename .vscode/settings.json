@@ -4,20 +4,11 @@
   ],
   "java.project.outputPath": "bin",
   "java.project.referencedLibraries": [
-    "lib\\junit-4.13.2.jar",
-    "lib\\hamcrest-core-1.3.jar",
     "c:\\Users\\adamp\\Documents\\Uni\\Year 2\\Term1\\ECM2414 - Software Development\\Coursework\\ECM2414_PairCoursework\\lib\\junit-4.13.2.jar",
     "c:\\Users\\adamp\\Documents\\Uni\\Year 2\\Term1\\ECM2414 - Software Development\\Coursework\\ECM2414_PairCoursework\\lib\\hamcrest-core-1.3.jar"
   ],
   "java.project.testSourcePaths": [
     "src"
-  ],
-  "java.configuration.runtimes": [
-    {
-      "name": "JavaSE-17",
-      "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.13.11-hotspot",
-      "default": true
-    }
   ],
   "java.project.allowMissingModuleInfo": true
 }

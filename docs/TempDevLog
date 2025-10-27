@@ -23,12 +23,13 @@ Tests:
 - test picking a card from hand
     - picking a card with duplicates
     - picking a card where card to be picked is at beginning.
-    - in middle.
-    - check with 5 cards of the same.
+    - at end.
+    - check with 4 cards of the same.
 - test win method
     - test with 3 of the same
     - none of the same
     - all of the same
+    - all same but not player num
 - test turn of game
 - test adding different pieces of text to output file
 

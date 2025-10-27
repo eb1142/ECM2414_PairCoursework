@@ -26,10 +26,18 @@ public class Deck {
     }
         May be better to handle this in Player class
     */
+    public String cardsToString() {
+        String result = "";
+        for (Card card : cards) {
+            result = result.concat("|" + Integer.toString(card.getValue()));
+        }
+        return result;
+    }
+
     public synchronized Card drawCard() {
         return cards.remove(0);
     }
-    public void addDiscardedCard (Card card) {
+    public void addCard (Card card) {
         cards.add(card);
     }
 

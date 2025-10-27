@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Player {
-    private static int idCounter = 0;
+    static int idCounter = 0;
     private final int playerNum;
     private ArrayList<Card> hand;
 
@@ -11,11 +11,17 @@ public class Player {
         playerNum = ++idCounter;
         hand = new ArrayList<>();
     }
-
+    
     public int getID() {
         return playerNum;
     }
-    
+    public String handToString() {
+        String result = "";
+        for (Card card : hand) {
+            result = result.concat("|" + Integer.toString(card.getValue()));
+        }
+        return result;
+    }
     public void addCard(Card card) {
         hand.add(card);
     }
@@ -33,7 +39,7 @@ public class Player {
     //adds a card to bottom of deck and removes from hand
     public void discardCard(Deck deck, Card card) {
         removeCard(card);
-        deck.addDiscardedCard(card);
+        deck.addCard(card);
         addToOutput(String.format("player %d discards a %d to deck %d", playerNum, card.getValue(), deck.getDeckID()));
     }
 
@@ -75,7 +81,7 @@ public class Player {
     }
 
     public void addToOutput(String text) {
-        try (FileWriter writer = new FileWriter(String.format("player%d_output.txt", playerNum))) {
+        try (FileWriter writer = new FileWriter(String.format("player%d_output.txt", playerNum), true)) {
             writer.write(text + "\n");
         } catch (IOException e) {
             System.err.println("Error when writing to player text file");

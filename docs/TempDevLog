@@ -1,6 +1,6 @@
 Feature 1 - Player class:
-Driver - 
-Coordinator - 
+Driver - Adam
+Coordinator - Ed
 
 Required Features:
 - must have access to draw deck and discard deck, this could be done by implementing an array in the game class.
@@ -31,4 +31,7 @@ Tests:
     - all of the same
 - test turn of game
 - test adding different pieces of text to output file
+
+Pair programming sessions
+- 23/10 6:00-6:30
 

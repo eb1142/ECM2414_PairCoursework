@@ -30,7 +30,7 @@ public class CardGame {
                 if (numPlayers >= 1) {
                     gameSetup.setNumPlayers(numPlayers);
                     break;
-                } else: {
+                } else {
                     System.out.println("Invalid number of players. Please enter a positive integer."); }
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input. Please enter a positive integer."); }

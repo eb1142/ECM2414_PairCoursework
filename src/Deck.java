@@ -17,12 +17,9 @@ public class Deck {
     public int getDeckID () {
         return deckNum;
     }
-    /*
-    public synchronized void drawCard(Player player) {
-        Card drawnCard = cards.remove(0);
-        player.addCardToHand(drawnCard);
-        Card discardedCard = cards.remove(0);
-        cards.add(discardedCard);
+
+    public void addCard(Card card) {
+        cards.add(card);
     }
         May be better to handle this in Player class
     */

@@ -5,16 +5,26 @@ import java.util.ArrayList;
 public class Player {
     static int idCounter = 0;
     private final int playerNum;
-    private ArrayList<Card> hand;
+    private final ArrayList<Card> hand;
+    private Deck discardDeck;
+    private Deck drawDeck;
 
     public Player() {
         playerNum = ++idCounter;
         hand = new ArrayList<>();
     }
-    
+    public void setDrawDeck(Deck deck) {
+        drawDeck = deck;
+    }
+    public void setDiscardDeck(Deck deck) {
+        discardDeck = deck;
+    }
+
     public int getID() {
         return playerNum;
     }
+
+    // for testing
     public String handToString() {
         String result = "";
         for (Card card : hand) {
@@ -30,17 +40,17 @@ public class Player {
         hand.remove(card);
     }
     //adds card to hand from head of deck
-    public void drawCard(Deck deck) {
-        Card card = deck.drawCard();
+    public void drawCard() {
+        Card card = drawDeck.drawCard();
         addCard(card);
-        addToOutput(String.format("player %d draws a %d from deck %d", playerNum, card.getValue(), deck.getDeckID()));
+        addToOutput(String.format("player %d draws a %d from deck %d", playerNum, card.getValue(), drawDeck.getID()));
     }
 
     //adds a card to bottom of deck and removes from hand
-    public void discardCard(Deck deck, Card card) {
+    public void discardCard(Card card) {
         removeCard(card);
-        deck.addCard(card);
-        addToOutput(String.format("player %d discards a %d to deck %d", playerNum, card.getValue(), deck.getDeckID()));
+        discardDeck.addCard(card);
+        addToOutput(String.format("player %d discards a %d to deck %d", playerNum, card.getValue(), discardDeck.getID()));
     }
 
     //picks card that doesn't equal the player number
@@ -68,14 +78,14 @@ public class Player {
     //a turn of play for a player
     /*at the moment, there are two decks as arguments
     , it may be better to implement these as attributes instead*/
-    public void turn(Deck discardDeck, Deck drawDeck) {
+    public void turn() {
         if (checkWon()) {
             //win statement
         }
         else {
-            drawCard(drawDeck);
+            drawCard();
             Card card = pickCard();
-            discardCard(discardDeck, card);
+            discardCard(card);
             addToOutput(String.format("player %d current hand is %d %d %d %d", playerNum, hand.get(0), hand.get(1), hand.get(2), hand.get(3)));
         }
     }

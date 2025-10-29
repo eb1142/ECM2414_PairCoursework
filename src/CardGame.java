@@ -1,5 +1,5 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class CardGame {
     public static class GameSetup { 
@@ -17,8 +17,8 @@ public class CardGame {
             return numPlayers;
         }
 
-        public int setNumPlayers(int numPlayers) {
-            return this.numPlayers = numPlayers;
+        public void setNumPlayers(int numPlayers) {
+            this.numPlayers = numPlayers;
         }
 
         public String getPackLocation() {
@@ -31,34 +31,37 @@ public class CardGame {
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
         GameSetup gameSetup = new GameSetup();
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (true) {
+                System.out.println("Please enter number of players: ");
+                try {
+                    int numPlayers = Integer.parseInt(scanner.nextLine());
+                    if (numPlayers >= 1) {
+                        gameSetup.setNumPlayers(numPlayers);
+                        break;
+                    } else {
+                        System.out.println("Invalid number of players. Please enter a positive integer."); }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input. Please enter a positive integer."); }
+            }
 
-        while (true) {
-            System.out.println("Please enter number of players:");
-            try {
-                int numPlayers = Integer.parseInt(scanner.nextLine());
-                if (numPlayers >= 1) {
-                    gameSetup.setNumPlayers(numPlayers);
+            while (true) {
+                System.out.println("Please enter location of pack to load: ");
+                String packLocation = scanner.nextLine();
+                File pack = new File(packLocation);
+                if (pack.exists() && pack.isFile()) {
+                    gameSetup.setPackLocation(packLocation);
                     break;
                 } else {
-                    System.out.println("Invalid number of players. Please enter a positive integer."); }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a positive integer."); }
+                    System.out.println("File not found. Please enter a valid file path."); }
+            }
+
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
         }
 
-        while (true) {
-            System.out.println("Please enter location of pack to load:");
-            String packLocation = scanner.nextLine();
-            File pack = new File(packLocation);
-            if (pack.exists() && pack.isFile()) {
-                gameSetup.setPackLocation(packLocation);
-                break;
-            } else {
-                System.out.println("File not found. Please enter a valid file path."); }
-        } scanner.close();
-
-        List<Card> packCards = new ArrayList<>();
+        ArrayList<Card> packCards = new ArrayList<>();
         try (Scanner fileScanner = new Scanner(new File(gameSetup.getPackLocation()))) {
             while (fileScanner.hasNextLine()) {
                 String line = fileScanner.nextLine().trim();
@@ -83,15 +86,20 @@ public class CardGame {
             return;
         }
 
-        List<Player> players = new ArrayList<>();
-        List<Deck> decks = new ArrayList<>();
+        ArrayList<Player> players = new ArrayList<>();
+        ArrayList<Deck> decks = new ArrayList<>();
 
         for (int i = 1; i <= numPlayers; i++) {
             Player player = new Player();
             players.add(player);
-            Deck deck = new Deck(player.getID());
+            Deck deck = new Deck();
             decks.add(deck);
+            player.setDrawDeck(deck);
+            if (players.size() > 1) {
+                players.get(players.size()-2).setDiscardDeck(deck);
+            }
         }
+        players.get(players.size()-1).setDiscardDeck(decks.get(0));
 
         for (int i = 0; i < 4 * numPlayers; i++) {
             int playerIndex = i % numPlayers;
@@ -99,7 +107,7 @@ public class CardGame {
         }
 
         for (int i = 4 * numPlayers; i < packCards.size(); i++) {
-            int deckIndex = ((i - 4) % numPlayers) % numPlayers;
+            int deckIndex = (i - 4 * numPlayers) % numPlayers;
             decks.get(deckIndex).addCard(packCards.get(i));
         }
 

@@ -1,9 +1,8 @@
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
 import static org.junit.Assert.*;
-import java.util.ArrayList;
 import org.junit.Before;
+
+import java.util.ArrayList;
 
 public class PlayerTest {
     private Player p1;
@@ -15,7 +14,7 @@ public class PlayerTest {
     public void setUp() {
         p1 = new Player();
         p2 = new Player();
-        deck = new Deck(1);
+        deck = new Deck();
         testCards = new ArrayList<>();
         for (int i = 1; i<= 5; i++) {
             testCards.add(new Card(i));
@@ -39,9 +38,10 @@ public class PlayerTest {
     public void testDrawCard() {
         deck.addCard(testCards.get(0));
         deck.addCard(testCards.get(1));
+        p1.setDrawDeck(deck);
         assertEquals("", p1.handToString());
         assertEquals("|1|2", deck.cardsToString());
-        p1.drawCard(deck);
+        p1.drawCard();
         assertEquals("|1", p1.handToString());
         assertEquals("|2", deck.cardsToString());
     }
@@ -51,9 +51,10 @@ public class PlayerTest {
         deck.addCard(testCards.get(0));
         deck.addCard(testCards.get(1));
         p1.addCard(testCards.get(2));
+        p1.setDiscardDeck(deck);
         Card discard = testCards.get(3);
         p1.addCard(discard);
-        p1.discardCard(deck, discard);
+        p1.discardCard(discard);
         assertEquals("|3", p1.handToString());
         assertEquals("|1|2|4", deck.cardsToString());
     }

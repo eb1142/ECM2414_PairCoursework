@@ -3,39 +3,41 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Deck {
-    private ArrayList<Card> cards;
-    private int deckNum;
+    private final ArrayList<Card> cards;
+    static int idCounter = 0;
+    private final int deckNum;
 
-    public Deck(int deckNum) {
-        if (deckNum < 0) {
-            throw new IllegalArgumentException("Deck number must be non-negative.");
-        }
-        this.deckNum = deckNum;
+    public Deck() {
+        deckNum = ++idCounter;
         this.cards = new ArrayList<>();
     }
 
-    public int getDeckID () {
+    public int getID () {
         return deckNum;
     }
 
     public void addCard(Card card) {
         cards.add(card);
     }
-        May be better to handle this in Player class
-    */
+
+    public Boolean isEmpty() {
+        return cards.size() <= 0;
+    }
+
+    public synchronized Card drawCard() {
+        if (isEmpty()) {
+            throw new IndexOutOfBoundsException("Cannot draw from an empty deck");
+        }
+            return cards.remove(0);
+    }
+
+    // for testing
     public String cardsToString() {
         String result = "";
         for (Card card : cards) {
             result = result.concat("|" + Integer.toString(card.getValue()));
         }
         return result;
-    }
-
-    public synchronized Card drawCard() {
-        return cards.remove(0);
-    }
-    public void addCard (Card card) {
-        cards.add(card);
     }
 
     public synchronized void writeFinalContents() {

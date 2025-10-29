@@ -1,6 +1,16 @@
-Feature 1 - Player class:
+Feature 1 - Player, Deck, and Card class:
 Driver - Adam
 Coordinator - Ed
+
+Card class
+
+Required features:
+- must have a face value
+
+Tests:
+- test retrieving value
+
+Player Class
 
 Required Features:
 - must have access to draw deck and discard deck, this could be done by implementing an array in the game class.
@@ -30,8 +40,25 @@ Tests:
     - none of the same
     - all of the same
     - all same but not player num
-- test turn of game
-- test adding different pieces of text to output file
+- test turn of game (to do)
+- test adding different pieces of text to output file (to do)
+
+Deck Class
+
+Required features:
+- must have an id as reference
+- must have a queue like structure for holding cards
+- add a card to the bottom of the deck
+- draw a card from the top of the deck
+- output deck contents to file
+
+Tests:
+- test getting a deck ID
+- test drawing cards
+    - with cards inside
+    - while empty
+- test adding cards
+- test output file (to do)
 
 Pair programming sessions
 - 23/10 6:00-6:30

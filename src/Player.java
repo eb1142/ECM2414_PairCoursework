@@ -53,6 +53,35 @@ public class Player {
         addToOutput(String.format("player %d discards a %d to deck %d", playerNum, card.getValue(), discardDeck.getID()));
     }
 
+    //makes drawCard and discardCard one atomic action
+    //a turn of a play for a player
+    //maybe turn decks into arguments
+    public void turn() {
+        if (checkWon()) {
+            return;
+        }
+        Object firstLock = drawDeck;
+        Object secondLock = discardDeck;
+        if (System.identityHashCode(firstLock) > System.identityHashCode(secondLock)) { //can swap lock order to prevent deadlock
+            Object temp = firstLock;
+            firstLock = secondLock;
+            secondLock = temp;
+        }
+        synchronized (firstLock) {
+            synchronized (secondLock) {
+                Card drawn = drawDeck.drawCard();
+                addCard(drawn);
+                addToOutput(String.format("player %d draws a %d from deck %d", playerNum, drawn.getValue(), drawDeck.getID()));
+                Card toDiscard = pickCard();
+                removeCard(toDiscard);
+                discardDeck.addCard(toDiscard);
+                addToOutput(String.format("player %d discards a %d to deck %d", playerNum, toDiscard.getValue(), discardDeck.getID()));
+                addToOutput(String.format("player %d current hand is %d %d %d %d", playerNum, hand.get(0), hand.get(1), hand.get(2), hand.get(3)));
+
+            }
+        }
+    }
+
     //picks card that doesn't equal the player number
     public Card pickCard() {
         for (Card card : hand) {
@@ -73,21 +102,6 @@ public class Player {
                 return false;
         }
         return true;
-    }
-
-    //a turn of play for a player
-    /*at the moment, there are two decks as arguments
-    , it may be better to implement these as attributes instead*/
-    public void turn() {
-        if (checkWon()) {
-            //win statement
-        }
-        else {
-            drawCard();
-            Card card = pickCard();
-            discardCard(card);
-            addToOutput(String.format("player %d current hand is %d %d %d %d", playerNum, hand.get(0), hand.get(1), hand.get(2), hand.get(3)));
-        }
     }
 
     public void addToOutput(String text) {

@@ -1,4 +1,4 @@
-package com.example;
+package ecm2414;
 
 import java.io.FileWriter;
 import java.io.IOException;

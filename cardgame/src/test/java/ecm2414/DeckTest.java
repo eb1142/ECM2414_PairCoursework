@@ -1,10 +1,11 @@
-package com.example;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+package ecm2414;
 
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DeckTest {
     private Deck deck;
@@ -36,7 +37,8 @@ public class DeckTest {
 
     @Test
     public void testDrawEmpty() {
-        assertThrows(IndexOutOfBoundsException.class, () -> deck.drawCard());
+        IndexOutOfBoundsException ex = assertThrows(IndexOutOfBoundsException.class, () -> deck.drawCard());
+        assertEquals("Cannot draw from an empty deck", ex.getMessage());
         assertEquals("", deck.cardsToString());
     }
 }

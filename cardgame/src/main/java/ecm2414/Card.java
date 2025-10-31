@@ -1,4 +1,4 @@
-package com.example;
+package ecm2414;
 
 public class Card {
     private int faceValue;

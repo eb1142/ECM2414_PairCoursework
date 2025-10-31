@@ -11,5 +11,6 @@
   "java.project.testSourcePaths": [
     "src"
   ],
-  "java.project.allowMissingModuleInfo": true
+  "java.project.allowMissingModuleInfo": true,
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

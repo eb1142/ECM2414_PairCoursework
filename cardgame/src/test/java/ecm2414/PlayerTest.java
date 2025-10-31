@@ -1,4 +1,4 @@
-package com.example;
+package ecm2414;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

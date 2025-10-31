@@ -1,5 +1,5 @@
 #Maven target folder
-cardgame/target/
+/target/
 
 #IDE folders
 .vscode/
@@ -9,3 +9,6 @@ cardgame/target/
 
 #Logs
 *.log
+
+# OS-specific files
+Thumbs.db

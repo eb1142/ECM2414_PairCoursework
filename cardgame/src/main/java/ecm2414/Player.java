@@ -3,6 +3,7 @@ package ecm2414;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Player {
     static int idCounter = 0;
@@ -42,14 +43,14 @@ public class Player {
         hand.remove(card);
     }
     //adds card to hand from head of deck
-    public void drawCard() {
+    private void drawCard() {
         Card card = drawDeck.drawCard();
         addCard(card);
         addToOutput(String.format("player %d draws a %d from deck %d", playerNum, card.getValue(), drawDeck.getID()));
     }
 
     //adds a card to bottom of deck and removes from hand
-    public void discardCard(Card card) {
+    private void discardCard (Card card) {
         removeCard(card);
         discardDeck.addCard(card);
         addToOutput(String.format("player %d discards a %d to deck %d", playerNum, card.getValue(), discardDeck.getID()));
@@ -71,13 +72,10 @@ public class Player {
         }
         synchronized (firstLock) {
             synchronized (secondLock) {
-                Card drawn = drawDeck.drawCard();
-                addCard(drawn);
-                addToOutput(String.format("player %d draws a %d from deck %d", playerNum, drawn.getValue(), drawDeck.getID()));
+                //private helper methods for readability, allowing atomicity
+                drawCard();
                 Card toDiscard = pickCard();
-                removeCard(toDiscard);
-                discardDeck.addCard(toDiscard);
-                addToOutput(String.format("player %d discards a %d to deck %d", playerNum, toDiscard.getValue(), discardDeck.getID()));
+                discardCard(toDiscard);
                 addToOutput(String.format("player %d current hand is %d %d %d %d", playerNum, hand.get(0), hand.get(1), hand.get(2), hand.get(3)));
 
             }
@@ -85,15 +83,22 @@ public class Player {
     }
 
     //picks card that doesn't equal the player number
-    public Card pickCard() {
+    private Card pickCard() {
+        ArrayList<Card> temp = new ArrayList<>();
         for (Card card : hand) {
             if (card.getValue() != playerNum) {
-                return card;
+                temp.add(card);
             }
         }
-        /*this is where there are 5 cards that are all right
-        , doesn't matter which is picked*/
-        return hand.get(0);
+        Random rand = new Random();
+
+        if (!temp.isEmpty()) {
+            return temp.get(rand.nextInt(temp.size()));
+        } else {
+            /*this is where cards are all right
+            , doesn't matter which is picked*/
+            return hand.get(0);
+        }
     }
 
     public boolean checkWon() {

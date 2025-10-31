@@ -10,7 +10,7 @@ public class Deck {
     private final int deckNum;
 
     public Deck() {
-        deckNum = ++idCounter;
+        this.deckNum = ++idCounter;
         this.cards = new ArrayList<>();
     }
 
@@ -18,12 +18,13 @@ public class Deck {
         return deckNum;
     }
 
-    public void addCard(Card card) {
+    public synchronized void addCard(Card card) {
+        if (card == null) return;
         cards.add(card);
     }
 
-    public Boolean isEmpty() {
-        return cards.size() <= 0;
+    public synchronized Boolean isEmpty() {
+        return cards.isEmpty();
     }
 
     public synchronized Card drawCard() {

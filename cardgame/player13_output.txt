@@ -1,0 +1,2 @@
+player 13 draws a 1 from deck 10
+player 13 draws a 1 from deck 7

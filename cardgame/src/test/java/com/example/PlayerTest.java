@@ -1,6 +1,8 @@
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Before;
+package com.example;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 
@@ -10,7 +12,7 @@ public class PlayerTest {
     private Deck deck;
     private ArrayList<Card> testCards;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         p1 = new Player();
         p2 = new Player();

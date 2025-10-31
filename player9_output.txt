@@ -5,3 +5,8 @@ player 9 discards a 4 to deck 7
 player 9 discards a 4 to deck 8
 player 9 discards a 4 to deck 5
 player 9 discards a 4 to deck 8
+player 9 discards a 4 to deck 8
+player 9 discards a 4 to deck 5
+player 9 discards a 4 to deck 5
+player 9 discards a 4 to deck 5
+player 9 discards a 4 to deck 5

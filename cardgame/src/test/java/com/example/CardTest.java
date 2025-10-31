@@ -1,6 +1,7 @@
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Before;
+package com.example;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class CardTest {
 

@@ -1,0 +1,11 @@
+#Maven target folder
+cardgame/target/
+
+#IDE folders
+.vscode/
+
+#Class files
+*.class
+
+#Logs
+*.log

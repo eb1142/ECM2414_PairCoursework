@@ -1,0 +1,13 @@
+1) cd cardgame
+
+To compile:
+mvn compile
+
+To compile tests:
+mvn test-compile
+
+To run tests:
+mvn test
+
+To run CardGame:
+java -cp target/classes ecm2414.CardGame

@@ -99,7 +99,7 @@ public class CardGame {
     public static void retrievePackCards(GameSetup gameSetup, Scanner scanner, ArrayList<Card> packCards) {
         //loads pack into cards
             while (true) {
-                packCards = new ArrayList<>();
+                packCards.clear();
                 System.out.println("Please enter location of pack to load: ");
                 String packLocation = scanner.nextLine().trim();
 
@@ -132,6 +132,7 @@ public class CardGame {
                     }
                 
                     gameSetup.setPackLocation(packLocation);
+                    System.out.println(packCards.get(0).getValue());
                     break;
                     
                 } catch (IOException e) {

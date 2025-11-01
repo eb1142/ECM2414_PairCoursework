@@ -26,7 +26,6 @@ public class DeckTest {
                         System.err.println("Could not delete file: " + path);
                     }
                 }
-                System.out.println("Old output files cleared.");
             } catch (IOException e) {
                 System.err.println("Error reading output directory: " + e.getMessage());
             }

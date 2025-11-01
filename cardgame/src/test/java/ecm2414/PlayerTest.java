@@ -1,6 +1,9 @@
 package ecm2414;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,6 +20,25 @@ public class PlayerTest {
     private Deck deck;
     private ArrayList<Card> testCards;
 
+    public static void clearOldOutputs() {
+        Path outputDir = Path.of("target", "output");
+
+        if (Files.exists(outputDir)) {
+            try (var paths = Files.list(outputDir)) {
+                for (Path path : paths.toList()) {
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException e) {
+                        System.err.println("Could not delete file: " + path);
+                    }
+                }
+                System.out.println("Old output files cleared.");
+            } catch (IOException e) {
+                System.err.println("Error reading output directory: " + e.getMessage());
+            }
+        }
+    }
+
     @BeforeEach
     public void setUp() {
         p1 = new Player();
@@ -26,6 +48,7 @@ public class PlayerTest {
         for (int i = 1; i<= 5; i++) {
             testCards.add(new Card(i));
         }
+        clearOldOutputs();
     }
 
     @Test

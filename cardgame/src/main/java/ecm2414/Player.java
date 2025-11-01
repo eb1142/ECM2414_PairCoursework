@@ -2,6 +2,8 @@ package ecm2414;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -112,8 +114,17 @@ public class Player {
     }
 
     public void addToOutput(String text) {
-        try (FileWriter writer = new FileWriter(String.format("player%d_output.txt", playerNum), true)) {
-            writer.write(text + "\n");
+        String filename = String.format("player%d_output.txt", playerNum);
+        try {
+            Path outputDir = Path.of("target", "output");
+            Files.createDirectories(outputDir);
+
+            Path outputFile = outputDir.resolve(filename);
+
+            try (FileWriter writer = new FileWriter(outputFile.toFile(), true)) {
+                writer.write(text + "\n");
+            }
+
         } catch (IOException e) {
             System.err.println("Error when writing to player text file");
         }

@@ -63,7 +63,6 @@ public class Player {
 
     //makes drawCard and discardCard one atomic action
     //a turn of a play for a player
-    //maybe turn decks into arguments
     public void turn() {
         if (checkWon()) {
             return;
@@ -85,28 +84,30 @@ public class Player {
                         Thread.currentThread().interrupt();
                         return;
                     }
-            }
-            if (CardGame.gameOver.get()) {
-                return;
-            }
-        }
-
-        while (!CardGame.gameOver.get()) {
-            synchronized (drawDeck) {
-                while (drawDeck.size() != 4) {
-                    try {
-                        drawDeck.wait();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
+                }
+                if (CardGame.gameOver.get()) {
+                    return;
                 }
             }
-            if (CardGame.gameOver.get()) {
-                return;
-            }
-        }
 
+            while (!CardGame.gameOver.get()) {
+                System.out.println("Attempting turn");
+                synchronized (drawDeck) {
+                    while (drawDeck.size() != 4) {
+                        System.out.println("Draw deck not 4");
+                        try {
+                            drawDeck.wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                    }
+                }
+                if (CardGame.gameOver.get()) {
+                    return;
+                }
+            }
+            System.out.println("Attempting lock");
             synchronized (firstLock) {
                 synchronized (secondLock) {
                     if (CardGame.gameOver.get()) {

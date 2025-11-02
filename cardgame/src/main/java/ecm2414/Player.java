@@ -63,7 +63,6 @@ public class Player {
 
     //makes drawCard and discardCard one atomic action
     //a turn of a play for a player
-    //maybe turn decks into arguments
     public void turn() {
         // If player already won, exit
         if (checkWon() || CardGame.gameOver.get()) {

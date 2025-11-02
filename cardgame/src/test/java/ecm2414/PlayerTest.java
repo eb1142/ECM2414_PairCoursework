@@ -211,4 +211,28 @@ public class PlayerTest {
         p1.addCard(new Card(p1.getID()+1));
         assertTrue(p1.checkWon());
     }
+
+    @Test
+    public void testTurnNormal() {
+        Deck draw = new Deck();
+        Deck discard = new Deck();
+
+        for (int i = 1; i <= 4; i++) {
+            draw.addCard(new Card(i));
+        }
+
+        p1.setDrawDeck(draw);
+        p1.setDiscardDeck(discard);
+        CardGame.gameOver.set(false);
+
+        for (int i = 5; i <= 8; i++) {
+            p1.addCard(new Card(i));
+        }
+
+        assertFalse(discard.cardsToString().length() >= 1);
+        p1.turn();
+
+        assertEquals(2*4, p1.handToString().length());
+        assertTrue(discard.cardsToString().length() >= 1);
+    }
 }

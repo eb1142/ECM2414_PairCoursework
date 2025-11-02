@@ -3,6 +3,8 @@ package ecm2414;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Deck {
     private final ArrayList<Card> cards;
@@ -48,14 +50,18 @@ public class Deck {
     }
 
     public synchronized void writeFinalContents() {
-        String filename = "deck" + deckNum + "_output.txt";
-        try (FileWriter writer = new FileWriter(filename)) {
-            for (Card card : cards) {
-                writer.write(card.toString() + "\n");
+        Path outputDir = Path.of("target", "output");
+        try {
+            Files.createDirectories(outputDir);
+            Path outputFile = outputDir.resolve(String.format("deck%d_output.txt", deckNum));
+            try (FileWriter writer = new FileWriter(outputFile.toFile())) {
+                for (Card card : cards) {
+                    writer.write(" " + card.getValue());
+                }
+                writer.write("\n");
             }
         } catch (IOException e) {
             System.err.println("Error writing deck: " + e.getMessage());
         }
     }
 }
-

@@ -65,63 +65,72 @@ public class Player {
     //a turn of a play for a player
     //maybe turn decks into arguments
     public void turn() {
-        if (checkWon()) {
+        // If player already won, exit
+        if (checkWon() || CardGame.gameOver.get()) {
             return;
         }
+
+        // Determine lock order to prevent deadlock
         Object firstLock = drawDeck;
         Object secondLock = discardDeck;
-        if (System.identityHashCode(firstLock) > System.identityHashCode(secondLock)) { //can swap lock order to prevent deadlock
+        if (System.identityHashCode(firstLock) > System.identityHashCode(secondLock)) {
             Object temp = firstLock;
             firstLock = secondLock;
             secondLock = temp;
         }
 
-        while (!CardGame.gameOver.get()) {
-            synchronized (drawDeck) {
-                while (drawDeck.isEmpty() && !CardGame.gameOver.get()) {
-                    try {
-                        drawDeck.wait();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-            }
-            if (CardGame.gameOver.get()) {
-                return;
-            }
-        }
-
-        while (!CardGame.gameOver.get()) {
-            synchronized (drawDeck) {
-                while (drawDeck.size() != 4) {
-                    try {
-                        drawDeck.wait();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        return;
-                    }
-                }
-            }
-            if (CardGame.gameOver.get()) {
-                return;
-            }
-        }
-
-            synchronized (firstLock) {
-                synchronized (secondLock) {
-                    if (CardGame.gameOver.get()) {
-                        return;
-                    }
-                    //private helper methods for readability, allowing atomicity
-                    drawCard();
-                    Card toDiscard = pickCard();
-                    discardCard(toDiscard);
-                    addToOutput(String.format("player %d current hand is %d %d %d %d", playerNum, hand.get(0), hand.get(1), hand.get(2), hand.get(3)));
+        // Wait until draw deck has a card
+        Card drawnCard = null;
+        synchronized (drawDeck) {
+            while (drawDeck.isEmpty() && !CardGame.gameOver.get()) {
+                try {
+                    drawDeck.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     return;
                 }
             }
+
+            // If game ended while waiting, exit
+            if (CardGame.gameOver.get()) {
+                return;
+            }
+
+            // Draw card
+            drawnCard = drawDeck.drawCard();
+        }
+
+        // Add drawn card to hand and notify discard deck inside locks
+        synchronized (firstLock) {
+            synchronized (secondLock) {
+                addCard(drawnCard);
+                addToOutput(String.format("player %d draws a %d from deck %d",
+                        playerNum, drawnCard.getValue(), drawDeck.getID()));
+
+                // Pick a card to discard
+                Card toDiscard = pickCard();
+                removeCard(toDiscard);
+
+                // Add to discard deck and notify waiting players
+                synchronized (discardDeck) {
+                    discardDeck.addCard(toDiscard);
+                    discardDeck.notifyAll();
+                }
+
+                addToOutput(String.format("player %d discards a %d to deck %d",
+                        playerNum, toDiscard.getValue(), discardDeck.getID()));
+
+                // Log current hand
+                addToOutput(String.format("player %d current hand is %d %d %d %d",
+                        playerNum,
+                        hand.get(0).getValue(),
+                        hand.get(1).getValue(),
+                        hand.get(2).getValue(),
+                        hand.get(3).getValue()));
+            }
         }
     }
+
 
     //picks card that doesn't equal the player number
     private Card pickCard() {
@@ -152,7 +161,7 @@ public class Player {
         return true;
     }
 
-    public void addToOutput(String text) {
+    public synchronized void addToOutput(String text) {
         String filename = String.format("player%d_output.txt", playerNum);
         try {
             Path outputDir = Path.of("target", "output");

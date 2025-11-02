@@ -110,8 +110,8 @@ public class CardGame {
                 System.out.println("Please enter location of pack to load: ");
                 String packLocation = scanner.nextLine().trim();
 
-                //try (InputStream in = CardGame.class.getResourceAsStream("/" + packLocation)) {
-                try (InputStream in = Files.newInputStream(Path.of(packLocation))) {
+                try (InputStream in = CardGame.class.getResourceAsStream("/" + packLocation)) {
+                //try (InputStream in = Files.newInputStream(Path.of(packLocation))) {
                     if (in == null) {
                         System.out.println("File not found in resources.");
                         continue;
@@ -191,6 +191,7 @@ public class CardGame {
                             if (winnerID.compareAndSet(-1, player.getID())) {
                                 signalGameOver(decks, player.getID());
                                 player.addToOutput(String.format("player %d wins", player.getID()));
+                                System.out.println("player " + player.getID() + " wins");
                             }
                             break;
                         }
@@ -220,6 +221,7 @@ public class CardGame {
         for (Deck deck : decks) {
             deck.writeFinalContents();
         }
+        System.exit(0);
     }
 }
  

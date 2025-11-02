@@ -69,7 +69,7 @@ public class Player {
             return;
         }
 
-        // Determine lock order to prevent deadlock
+        // orders the locks so there's no deadlock
         Object firstLock = drawDeck;
         Object secondLock = discardDeck;
         if (System.identityHashCode(firstLock) > System.identityHashCode(secondLock)) {
@@ -78,7 +78,7 @@ public class Player {
             secondLock = temp;
         }
 
-        // Wait until draw deck has a card
+        // Makes sure that the decks haven't been emptied from different thread speeds
         Card drawnCard = null;
         synchronized (drawDeck) {
             while (drawDeck.isEmpty() && !CardGame.gameOver.get()) {
@@ -90,27 +90,24 @@ public class Player {
                 }
             }
 
-            // If game ended while waiting, exit
+            // checks if game has ended while waiting
             if (CardGame.gameOver.get()) {
                 return;
             }
 
-            // Draw card
             drawnCard = drawDeck.drawCard();
         }
 
-        // Add drawn card to hand and notify discard deck inside locks
+        // adds the new card to the hand and sends notify
         synchronized (firstLock) {
             synchronized (secondLock) {
                 addCard(drawnCard);
                 addToOutput(String.format("player %d draws a %d from deck %d",
                         playerNum, drawnCard.getValue(), drawDeck.getID()));
 
-                // Pick a card to discard
                 Card toDiscard = pickCard();
                 removeCard(toDiscard);
 
-                // Add to discard deck and notify waiting players
                 synchronized (discardDeck) {
                     discardDeck.addCard(toDiscard);
                     discardDeck.notifyAll();
@@ -119,7 +116,6 @@ public class Player {
                 addToOutput(String.format("player %d discards a %d to deck %d",
                         playerNum, toDiscard.getValue(), discardDeck.getID()));
 
-                // Log current hand
                 addToOutput(String.format("player %d current hand is %d %d %d %d",
                         playerNum,
                         hand.get(0).getValue(),

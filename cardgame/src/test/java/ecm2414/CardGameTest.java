@@ -88,8 +88,15 @@ public class CardGameTest {
         String input = String.format("-1\n0\n-200\n%d\n", numPlayers);
         Scanner scanner = new Scanner(input);
         
+        PrintStream originalOut = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
         CardGame.retrieveNumPlayers(gameSetup, scanner);
 
+        System.setOut(originalOut);
+
+        assertTrue(outContent.toString().contains("Invalid number of players. Please enter a positive integer."));
         assertEquals(numPlayers, gameSetup.getNumPlayers());
     }
 
@@ -98,8 +105,15 @@ public class CardGameTest {
         String input = String.format("ads\ndhytr6\ndhfg!3\n%d\n", numPlayers);
         Scanner scanner = new Scanner(input);
         
+        PrintStream originalOut = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
         CardGame.retrieveNumPlayers(gameSetup, scanner);
 
+        System.setOut(originalOut);
+
+        assertTrue(outContent.toString().contains("Invalid input. Please enter a positive integer."));
         assertEquals(numPlayers, gameSetup.getNumPlayers());
     }
 
@@ -108,8 +122,15 @@ public class CardGameTest {
         String input = String.format("\n\n\n\n%d\n", numPlayers);
         Scanner scanner = new Scanner(input);
         
+        PrintStream originalOut = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
         CardGame.retrieveNumPlayers(gameSetup, scanner);
 
+        System.setOut(originalOut);
+
+        assertTrue(outContent.toString().contains("Invalid input. Please enter a positive integer."));
         assertEquals(numPlayers, gameSetup.getNumPlayers());
     }
 
@@ -163,4 +184,66 @@ public class CardGameTest {
 
         assertEquals(expected, result);
     }
+
+    @Test
+    public void testRetrievePackCardsLettersNegatives() {
+        String input = "testing/test2.txt\ntesting/test3.txt\ntesting/test1.txt";
+        Scanner scanner = new Scanner(input);
+
+        testPack = new ArrayList<>();
+        gameSetup.setNumPlayers(4);
+
+        PrintStream originalOut = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        CardGame.retrievePackCards(gameSetup, scanner, testPack);
+
+        System.setOut(originalOut);
+
+        assertTrue(outContent.toString().contains("This card is invalid: 7a"));
+        assertTrue(outContent.toString().contains("This card is invalid: -15"));
+
+        String result = "";
+        for (Card card : testPack) {
+            result = result.concat("|" + Integer.toString(card.getValue()));
+        }
+        String expected = "";
+        for (int i = 1; i <= 32; i++) {
+            expected = expected.concat("|" + Integer.toString(i));
+        }
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testRetrievePackCardsWrongNum() {
+        String input = "testing/test4.txt\ntesting/test1.txt";
+        Scanner scanner = new Scanner(input);
+
+        testPack = new ArrayList<>();
+        gameSetup.setNumPlayers(4);
+
+        PrintStream originalOut = System.out;
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        CardGame.retrievePackCards(gameSetup, scanner, testPack);
+
+        System.setOut(originalOut);
+
+        assertTrue(outContent.toString().contains("Incorrect number of cards in pack."));
+
+        String result = "";
+        for (Card card : testPack) {
+            result = result.concat("|" + Integer.toString(card.getValue()));
+        }
+        String expected = "";
+        for (int i = 1; i <= 32; i++) {
+            expected = expected.concat("|" + Integer.toString(i));
+        }
+
+        assertEquals(expected, result);
+    }
+    
 }

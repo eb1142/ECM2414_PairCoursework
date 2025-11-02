@@ -124,7 +124,7 @@ public class CardGame {
                                 try {
                                     int faceValue = Integer.parseInt(line);
                                     packCards.add(new Card(faceValue));
-                                } catch (NumberFormatException e) {
+                                } catch (IllegalArgumentException e) {
                                     System.out.println("This card is invalid: " + line);
                                     cardCheck = false;
                                     break;
@@ -144,7 +144,6 @@ public class CardGame {
                     
                 } catch (IOException e) {
                     System.out.println("Error reading pack: " + e.getMessage());
-                    //e.printStackTrace();
                 }
             }
     }

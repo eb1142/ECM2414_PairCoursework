@@ -104,14 +104,13 @@ public class CardGame {
     }
 
     public static void retrievePackCards(GameSetup gameSetup, Scanner scanner, ArrayList<Card> packCards) {
-        //loads pack into cards
             while (true) {
                 packCards.clear();
                 System.out.println("Please enter location of pack to load: ");
                 String packLocation = scanner.nextLine().trim();
 
-                //try (InputStream in = CardGame.class.getResourceAsStream("/" + packLocation)) {
-                try (InputStream in = Files.newInputStream(Path.of(packLocation))) {
+                try (InputStream in = CardGame.class.getResourceAsStream("/" + packLocation)) {
+                //try (InputStream in = Files.newInputStream(Path.of(packLocation))) {
                     if (in == null) {
                         System.out.println("File not found in resources.");
                         continue;
@@ -128,6 +127,7 @@ public class CardGame {
                                 } catch (NumberFormatException e) {
                                     System.out.println("This card is invalid: " + line);
                                     cardCheck = false;
+                                    break;
                                 }
                             }
                         }
@@ -140,11 +140,11 @@ public class CardGame {
                     }
                 
                     gameSetup.setPackLocation(packLocation);
-                    System.out.println(packCards.get(0).getValue());
                     break;
                     
                 } catch (IOException e) {
                     System.out.println("Error reading pack: " + e.getMessage());
+                    //e.printStackTrace();
                 }
             }
     }
@@ -176,8 +176,10 @@ public class CardGame {
         ArrayList<Player> players = new ArrayList<>();
         ArrayList<Deck> decks = new ArrayList<>();
 
+        System.out.println("Distributing cards...");
         distributeCards(numPlayers, packCards, players, decks);
-
+        System.out.println("Cards distributed");
+        
         gameOver.set(false);
         winnerID.set(-1);
 

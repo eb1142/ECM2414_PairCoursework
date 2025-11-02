@@ -54,7 +54,10 @@ public class Player {
     //adds a card to bottom of deck and removes from hand
     private void discardCard (Card card) {
         removeCard(card);
-        discardDeck.addCard(card);
+        synchronized (discardDeck) {
+            discardDeck.addCard(card);
+            discardDeck.notifyAll(); 
+        }
         addToOutput(String.format("player %d discards a %d to deck %d", playerNum, card.getValue(), discardDeck.getID()));
     }
 
@@ -72,14 +75,50 @@ public class Player {
             firstLock = secondLock;
             secondLock = temp;
         }
-        synchronized (firstLock) {
-            synchronized (secondLock) {
-                //private helper methods for readability, allowing atomicity
-                drawCard();
-                Card toDiscard = pickCard();
-                discardCard(toDiscard);
-                addToOutput(String.format("player %d current hand is %d %d %d %d", playerNum, hand.get(0), hand.get(1), hand.get(2), hand.get(3)));
 
+        while (!CardGame.gameOver.get()) {
+            synchronized (drawDeck) {
+                while (drawDeck.isEmpty() && !CardGame.gameOver.get()) {
+                    try {
+                        drawDeck.wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+            }
+            if (CardGame.gameOver.get()) {
+                return;
+            }
+        }
+
+        while (!CardGame.gameOver.get()) {
+            synchronized (drawDeck) {
+                while (drawDeck.size() != 4) {
+                    try {
+                        drawDeck.wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+            }
+            if (CardGame.gameOver.get()) {
+                return;
+            }
+        }
+
+            synchronized (firstLock) {
+                synchronized (secondLock) {
+                    if (CardGame.gameOver.get()) {
+                        return;
+                    }
+                    //private helper methods for readability, allowing atomicity
+                    drawCard();
+                    Card toDiscard = pickCard();
+                    discardCard(toDiscard);
+                    addToOutput(String.format("player %d current hand is %d %d %d %d", playerNum, hand.get(0), hand.get(1), hand.get(2), hand.get(3)));
+                    return;
+                }
             }
         }
     }

@@ -27,6 +27,10 @@ public class Deck {
         return cards.isEmpty();
     }
 
+    public synchronized int size() {
+        return cards.size();
+    }
+
     public synchronized Card drawCard() {
         if (isEmpty()) {
             throw new IndexOutOfBoundsException("Cannot draw from an empty deck");

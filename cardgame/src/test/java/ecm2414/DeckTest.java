@@ -5,8 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +34,21 @@ public class DeckTest {
         }
     }
 
+    @BeforeEach 
+    @AfterEach
+    public void clearOutputFolder() throws IOException {
+        Path outputDir = Path.of("target", "output");
+        if (Files.exists(outputDir)) {
+            try (var files = Files.list(outputDir)) {
+                files.forEach(path -> {
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException ignored) {}
+                });
+            }
+        }
+    }
+
     @BeforeEach
     public void setUp() {
         deck = new Deck();
@@ -52,9 +69,9 @@ public class DeckTest {
         deck.addCard(testCards.get(0));
         deck.addCard(testCards.get(2));
         deck.addCard(testCards.get(1));
-        assertEquals("|1|3|2", deck.cardsToString());
+        assertEquals("1 3 2", deck.cardsToString());
         deck.drawCard();
-        assertEquals("|3|2", deck.cardsToString());
+        assertEquals("3 2", deck.cardsToString());
     }
 
     @Test
@@ -62,5 +79,17 @@ public class DeckTest {
         IndexOutOfBoundsException ex = assertThrows(IndexOutOfBoundsException.class, () -> deck.drawCard());
         assertEquals("Cannot draw from an empty deck", ex.getMessage());
         assertEquals("", deck.cardsToString());
+    }
+
+    @Test
+    public void testWriteFinalContents () throws IOException {
+        deck.writeFinalContents();
+
+        Path outputFile = Path.of("target", "output", String.format("deck%d_output.txt", deck.getID()));
+        assertTrue(Files.exists(outputFile));
+        
+        String content = Files.readString(outputFile);
+        
+        assertTrue(content.contains(deck.cardsToString()));
     }
 }

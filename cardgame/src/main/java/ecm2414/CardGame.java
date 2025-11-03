@@ -158,6 +158,47 @@ public class CardGame {
         }
     }
 
+    public static void startThreads(ArrayList<Player> players, ArrayList<Deck> decks) {
+        ArrayList<Thread> playerThreads = new ArrayList<>();
+
+        for (Player player : players) {
+            Thread playerThread = new Thread(() -> playerLoop(player, decks), "thread-for-player-" + player.getID());
+            playerThreads.add(playerThread);
+            playerThread.start();
+        }
+
+        for (Thread thread : playerThreads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    public static void playerLoop (Player player, ArrayList<Deck> decks) {
+        while (!gameOver.get() && !Thread.currentThread().isInterrupted()) {
+            try {
+                if (player.checkWon()) {
+                    if (winnerID.compareAndSet(-1, player.getID())) {
+                        signalGameOver(decks, player.getID());
+                        player.addToOutput(String.format("player %d wins", player.getID()));
+                        System.out.println("player " + player.getID() + " wins");
+                    }
+                    break;
+                }
+                try {
+                    player.turn();
+                } catch (Exception e) {
+                    System.err.println("Error during player " + player.getID() + "'s turn: " + e.getMessage());
+                }
+            } catch (Exception ex) {
+                if (Thread.currentThread().isInterrupted()) {
+                    break;
+                }
+            }
+        }
+    }
     public static void main(String[] args) {
         GameSetup gameSetup = new GameSetup();
         ArrayList<Card> packCards = new ArrayList<>();
@@ -175,50 +216,13 @@ public class CardGame {
         ArrayList<Player> players = new ArrayList<>();
         ArrayList<Deck> decks = new ArrayList<>();
 
-        System.out.println("Distributing cards...");
         distributeCards(numPlayers, packCards, players, decks);
-        System.out.println("Cards distributed");
-        
+
         gameOver.set(false);
         winnerID.set(-1);
 
-        ArrayList<Thread> playerThreads = new ArrayList<>();
-
-        for (Player player : players) {
-            Thread playerThread = new Thread(() -> {
-                while (!gameOver.get() && !Thread.currentThread().isInterrupted()) {
-                    try {
-                        if (player.checkWon()) {
-                            if (winnerID.compareAndSet(-1, player.getID())) {
-                                signalGameOver(decks, player.getID());
-                                player.addToOutput(String.format("player %d wins", player.getID()));
-                                System.out.println("player " + player.getID() + " wins");
-                            }
-                            break;
-                        }
-                        try {
-                            player.turn();
-                        } catch (Exception e) {
-                            System.err.println("Error during player " + player.getID() + "'s turn: " + e.getMessage());
-                        }
-                    } catch (Exception ex) {
-                        if (Thread.currentThread().isInterrupted()) {
-                            break;
-                        }
-                    }
-                }
-            }, "thread-for-player-" + player.getID());
-            playerThreads.add(playerThread);
-            playerThread.start();
-        }
-
-        for (Thread thread : playerThreads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
+        startThreads(players, decks);
+        
         for (Deck deck : decks) {
             deck.writeFinalContents();
         }

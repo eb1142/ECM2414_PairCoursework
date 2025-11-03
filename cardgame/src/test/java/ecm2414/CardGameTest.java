@@ -42,6 +42,9 @@ public class CardGameTest {
 
     @BeforeEach
     public void setUp() {
+        CardGame.gameOver.set(false);
+        CardGame.winnerID.set(-1);
+        
         testPack = new ArrayList<>();
         players = new ArrayList<>();
         decks = new ArrayList<>();
@@ -62,12 +65,12 @@ public class CardGameTest {
 
         int counter = 1;
         for (Player player : players) {
-            assertEquals(String.format("|%d|%d|%d|%d", counter, counter+numPlayers, counter+numPlayers*2, counter+numPlayers*3), player.handToString());
+            assertEquals(String.format("%d %d %d %d", counter, counter+numPlayers, counter+numPlayers*2, counter+numPlayers*3), player.handToString());
             counter++;
         }
         counter = 4*numPlayers + 1;
         for (Deck deck : decks) {
-            assertEquals(String.format("|%d|%d|%d|%d", counter, counter+numPlayers, counter+numPlayers*2, counter+numPlayers*3), deck.cardsToString());
+            assertEquals(String.format("%d %d %d %d", counter, counter+numPlayers, counter+numPlayers*2, counter+numPlayers*3), deck.cardsToString());
             counter++;
         }
 
@@ -246,4 +249,74 @@ public class CardGameTest {
         assertEquals(expected, result);
     }
     
+    @Test
+    public void testStartPlayerThreads() throws InterruptedException {
+        Deck drawDeck = new Deck();
+        Deck discardDeck = new Deck();
+
+        //Fake player subclass
+        class FakePlayer extends Player {
+            public boolean turnCalled = false;
+            public boolean wonCalled = false;
+
+            public FakePlayer(Deck draw, Deck discard) {
+                super();
+                super.setDiscardDeck(discard);
+                super.setDrawDeck(draw);
+            }
+
+            @Override
+            public boolean checkWon() {
+                return wonCalled; // initially false
+            }
+
+            @Override
+            public void turn() {
+                turnCalled = true;
+                CardGame.gameOver.set(true); // stop loop early
+            }
+        }
+
+        FakePlayer p = new FakePlayer(drawDeck, discardDeck);
+        players.add(p);
+
+        CardGame.startThreads(players, decks);
+
+        assertTrue(p.turnCalled);
+    }
+
+    @Test
+    public void testPlayerLoopWinner() {
+        decks.add(new Deck());
+
+        // Fake player that "wins" immediately
+        class WinningPlayer extends Player {
+            public boolean checkCalled = false;
+
+            public WinningPlayer(Deck draw, Deck discard) {
+                super();
+                super.setDiscardDeck(draw);
+                super.setDrawDeck(draw);
+            }
+            @Override
+            public boolean checkWon() {
+                checkCalled = true;
+                return true; //instant win
+            }
+            @Override
+            public void addToOutput(String text) {}
+        }
+
+        WinningPlayer wp = new WinningPlayer(new Deck(), new Deck());
+        CardGame.winnerID.set(-1);
+        CardGame.gameOver.set(false);
+
+        CardGame.playerLoop(wp, decks);
+
+        //Checks if player won correctly
+        assertTrue(wp.checkCalled);
+        assertEquals(1, CardGame.winnerID.get());
+        assertTrue(CardGame.gameOver.get());
+    }
+
 }

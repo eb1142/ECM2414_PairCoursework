@@ -2,9 +2,9 @@ package ecm2414;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 public class Deck {
     private final ArrayList<Card> cards;
@@ -44,16 +44,19 @@ public class Deck {
     public String cardsToString() {
         String result = "";
         for (Card card : cards) {
-            result = result.concat("|" + Integer.toString(card.getValue()));
+            result = result.concat(" " + Integer.toString(card.getValue()));
         }
-        return result;
+        return result.trim();
     }
 
     public synchronized void writeFinalContents() {
-        Path outputDir = Path.of("target", "output");
+        String filename = String.format("deck%d_output.txt", deckNum);
         try {
+            Path outputDir = Path.of("target", "output");
             Files.createDirectories(outputDir);
-            Path outputFile = outputDir.resolve(String.format("deck%d_output.txt", deckNum));
+
+            Path outputFile = outputDir.resolve(filename);
+            
             try (FileWriter writer = new FileWriter(outputFile.toFile())) {
                 for (Card card : cards) {
                     writer.write(" " + card.getValue());

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -38,6 +39,21 @@ public class PlayerTest {
         }
     }
 
+    @BeforeEach 
+    @AfterEach
+    public void clearOutputFolder() throws IOException {
+        Path outputDir = Path.of("target", "output");
+        if (Files.exists(outputDir)) {
+            try (var files = Files.list(outputDir)) {
+                files.forEach(path -> {
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException ignored) {}
+                });
+            }
+        }
+    }
+
     @BeforeEach
     public void setUp() {
         p1 = new Player();
@@ -58,26 +74,9 @@ public class PlayerTest {
     @Test
     public void testAddAndRemoveCard() {
         p1.addCard(testCards.get(0));
-        assertEquals("|1", p1.handToString());
+        assertEquals("1", p1.handToString());
         p1.removeCard(testCards.get(0));
         assertEquals("", p1.handToString());
-    }
-
-    @Test
-    public void testDrawCard() throws Exception {
-        deck.addCard(testCards.get(0));
-        deck.addCard(testCards.get(1));
-        p1.setDrawDeck(deck);
-        assertEquals("", p1.handToString());
-        assertEquals("|1|2", deck.cardsToString());
-        
-        Method drawCardMethod = Player.class.getDeclaredMethod("drawCard");
-        drawCardMethod.setAccessible(true);
-
-        drawCardMethod.invoke(p1);
-
-        assertEquals("|1", p1.handToString());
-        assertEquals("|2", deck.cardsToString());
     }
 
     @Test
@@ -94,27 +93,9 @@ public class PlayerTest {
 
         discardCardMethod.invoke(p1, discard);
 
-        assertEquals("|3", p1.handToString());
-        assertEquals("|1|2|4", deck.cardsToString());
+        assertEquals("3", p1.handToString());
+        assertEquals("1 2 4", deck.cardsToString());
     }
-
-    /*
-    @Test
-    void testConcurrentDrawAndDiscard() throws InterruptedException {
-        for (int i = 1; i <= 50; i++) deck.addCard(new Card(i));
-
-        p1.setDrawDeck(deck);
-        p2.setDiscardDeck(deck);
-
-        Thread t1 = new Thread(() -> { for(int i=0;i<25;i++) p1.drawAndDiscard(); });
-        Thread t2 = new Thread(() -> { for(int i=0;i<25;i++) p2.drawAndDiscard(); });
-
-        t1.start(); t2.start();
-        t1.join(); t2.join();
-
-        assertEquals(0, deck.size());
-    }
-    */
 
     @Test
     public void testPickCardDuplicates() throws Exception {
@@ -213,7 +194,7 @@ public class PlayerTest {
     }
 
     @Test
-    public void testTurnNormal() {
+    public void testTurn() {
         Deck draw = new Deck();
         Deck discard = new Deck();
 
@@ -232,7 +213,27 @@ public class PlayerTest {
         assertFalse(discard.cardsToString().length() >= 1);
         p1.turn();
 
-        assertEquals(2*4, p1.handToString().length());
+        assertEquals(2*4-1, p1.handToString().length());
         assertTrue(discard.cardsToString().length() >= 1);
+    }
+
+    @Test
+    public void testAddToOutput () throws IOException {
+        p1.addToOutput("This is line 1.");
+        p1.addToOutput("This is line 2.");
+        
+
+        Path outputFile = Path.of("target", "output", String.format("player%d_output.txt", p1.getID()));
+        assertTrue(Files.exists(outputFile));
+        
+        String content = Files.readString(outputFile);
+        assertTrue(content.contains("This is line 1."));
+        assertTrue(content.contains("This is line 2."));
+        assertFalse(content.contains("This is line 3."));
+
+        p1.addToOutput("This is line 3.");
+        content = Files.readString(outputFile);
+
+        assertTrue(content.contains("This is line 3."));
     }
 }

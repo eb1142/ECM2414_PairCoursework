@@ -33,9 +33,9 @@ public class Player {
     public String handToString() {
         String result = "";
         for (Card card : hand) {
-            result = result.concat("|" + Integer.toString(card.getValue()));
+            result = result.concat(" " + Integer.toString(card.getValue()));
         }
-        return result;
+        return result.trim();
     }
     public void addCard(Card card) {
         hand.add(card);
@@ -45,20 +45,15 @@ public class Player {
         hand.remove(card);
     }
     //adds card to hand from head of deck
-    private void drawCard() {
-        Card card = drawDeck.drawCard();
-        addCard(card);
-        addToOutput(String.format("player %d draws a %d from deck %d", playerNum, card.getValue(), drawDeck.getID()));
-    }
 
     //adds a card to bottom of deck and removes from hand
     private void discardCard (Card card) {
         removeCard(card);
+        // Add to discard deck and notify waiting players
         synchronized (discardDeck) {
             discardDeck.addCard(card);
-            discardDeck.notifyAll(); 
+            discardDeck.notifyAll();
         }
-        addToOutput(String.format("player %d discards a %d to deck %d", playerNum, card.getValue(), discardDeck.getID()));
     }
 
     //makes drawCard and discardCard one atomic action
@@ -69,7 +64,7 @@ public class Player {
             return;
         }
 
-        // orders the locks so there's no deadlock
+        // Determine lock order to prevent deadlock
         Object firstLock = drawDeck;
         Object secondLock = discardDeck;
         if (System.identityHashCode(firstLock) > System.identityHashCode(secondLock)) {
@@ -78,7 +73,7 @@ public class Player {
             secondLock = temp;
         }
 
-        // Makes sure that the decks haven't been emptied from different thread speeds
+        // Wait until draw deck has a card
         Card drawnCard = null;
         synchronized (drawDeck) {
             while (drawDeck.isEmpty() && !CardGame.gameOver.get()) {
@@ -90,32 +85,30 @@ public class Player {
                 }
             }
 
-            // checks if game has ended while waiting
+            // If game ended while waiting, exit
             if (CardGame.gameOver.get()) {
                 return;
             }
 
+            // Draw card
             drawnCard = drawDeck.drawCard();
         }
 
-        // adds the new card to the hand and sends notify
+        // Add drawn card to hand and notify discard deck inside locks
         synchronized (firstLock) {
             synchronized (secondLock) {
                 addCard(drawnCard);
                 addToOutput(String.format("player %d draws a %d from deck %d",
                         playerNum, drawnCard.getValue(), drawDeck.getID()));
 
+                // Pick a card to discard
                 Card toDiscard = pickCard();
-                removeCard(toDiscard);
-
-                synchronized (discardDeck) {
-                    discardDeck.addCard(toDiscard);
-                    discardDeck.notifyAll();
-                }
+                discardCard(toDiscard);
 
                 addToOutput(String.format("player %d discards a %d to deck %d",
                         playerNum, toDiscard.getValue(), discardDeck.getID()));
 
+                // Log current hand
                 addToOutput(String.format("player %d current hand is %d %d %d %d",
                         playerNum,
                         hand.get(0).getValue(),
